@@ -57,6 +57,7 @@ namespace Peasy.DataProxy.Http.Tests
         }
 
         [TestMethod]
+        [ExpectedException(typeof(NotImplementedException))]
         public void GetAll_throws_NotImplementedException_when_server_status_code_is_NOT_IMPLEMENTED()
         {
             var handler = new Mock<HttpMessageHandler>();
@@ -70,18 +71,12 @@ namespace Peasy.DataProxy.Http.Tests
 
             var proxy = new HttpServiceProxyStub(new HttpClient(handler.Object));
 
-            try
-            {
-                proxy.GetAll();
-            }
-            catch (AggregateException ex)
-            {
-                proxy.OnFormatServerErrorWasInvoked.ShouldBe(true);
-                ex.GetBaseException().ShouldBeOfType<NotImplementedException>();
-            }
+            proxy.GetAll();
+            proxy.OnFormatServerErrorWasInvoked.ShouldBe(true);
         }
 
         [TestMethod]
+        [ExpectedException(typeof(ServiceException))]
         public void GetAll_throws_ServiceException_when_server_status_code_is_BAD_REQUEST()
         {
             var handler = new Mock<HttpMessageHandler>();
@@ -107,6 +102,7 @@ namespace Peasy.DataProxy.Http.Tests
         }
 
         [TestMethod]
+        [ExpectedException(typeof(UnsupportedMediaTypeException))]
         public void GetAll_throws_UnsupportedMediaTypeException_when_bad_formatter_is_supplied()
         {
             var handler = new Mock<HttpMessageHandler>();
@@ -117,15 +113,8 @@ namespace Peasy.DataProxy.Http.Tests
 
             var proxy = new HttpServiceProxyStub(new HttpClient(handler.Object)) { Formatter = new XmlMediaTypeFormatter() };
 
-            try
-            {
-                proxy.GetAll();
-            }
-            catch (AggregateException ex)
-            {
-                proxy.OnFormatServerErrorWasInvoked.ShouldBe(false);
-                ex.GetBaseException().ShouldBeOfType<UnsupportedMediaTypeException>();
-            }
+            proxy.GetAll();
+            proxy.OnFormatServerErrorWasInvoked.ShouldBe(false);
         }
 
         [TestMethod]
@@ -289,6 +278,7 @@ namespace Peasy.DataProxy.Http.Tests
         }
 
         [TestMethod]
+        [ExpectedException(typeof(NotImplementedException))]
         public void GetByID_throws_NotImplementedException_when_server_status_code_is_NOT_IMPLEMENTED()
         {
             var handler = new Mock<HttpMessageHandler>();
@@ -302,18 +292,12 @@ namespace Peasy.DataProxy.Http.Tests
 
             var proxy = new HttpServiceProxyStub(new HttpClient(handler.Object));
 
-            try
-            {
-                proxy.GetByID(1);
-            }
-            catch (System.AggregateException ex)
-            {
-                proxy.OnFormatServerErrorWasInvoked.ShouldBe(true);
-                ex.GetBaseException().ShouldBeOfType<NotImplementedException>();
-            }
+            proxy.GetByID(1);
+            proxy.OnFormatServerErrorWasInvoked.ShouldBe(true);
         }
 
         [TestMethod]
+        [ExpectedException(typeof(DomainObjectNotFoundException))]
         public void GetByID_throws_DomainObjectNotFoundException_when_server_status_code_is_NOT_FOUND()
         {
             var handler = new Mock<HttpMessageHandler>();
@@ -327,17 +311,12 @@ namespace Peasy.DataProxy.Http.Tests
 
             var proxy = new HttpServiceProxyStub(new HttpClient(handler.Object));
 
-            try
-            {
-                proxy.GetByID(1);
-            }
-            catch (AggregateException ex)
-            {
-                proxy.OnFormatServerErrorWasInvoked.ShouldBe(true);
-                ex.GetBaseException().ShouldBeOfType<DomainObjectNotFoundException>();
-            }
+            proxy.GetByID(1);
+            proxy.OnFormatServerErrorWasInvoked.ShouldBe(true);
         }
+
         [TestMethod]
+        [ExpectedException(typeof(ServiceException))]
         public void GetByID_throws_ServiceException_when_server_status_code_is_BAD_REQUEST()
         {
             var handler = new Mock<HttpMessageHandler>();
@@ -351,18 +330,12 @@ namespace Peasy.DataProxy.Http.Tests
 
             var proxy = new HttpServiceProxyStub(new HttpClient(handler.Object));
 
-            try
-            {
-                proxy.GetByID(1);
-            }
-            catch (AggregateException ex)
-            {
-                proxy.OnFormatServerErrorWasInvoked.ShouldBe(true);
-                ex.GetBaseException().ShouldBeOfType<ServiceException>();
-            }
+            proxy.GetByID(1);
+            proxy.OnFormatServerErrorWasInvoked.ShouldBe(true);
         }
 
         [TestMethod]
+        [ExpectedException(typeof(UnsupportedMediaTypeException))]
         public void GetByID_throws_UnsupportedMediaTypeException_when_bad_formatter_is_supplied()
         {
             var handler = new Mock<HttpMessageHandler>();
@@ -373,15 +346,8 @@ namespace Peasy.DataProxy.Http.Tests
 
             var proxy = new HttpServiceProxyStub(new HttpClient(handler.Object)) { Formatter = new XmlMediaTypeFormatter() };
 
-            try
-            {
-                proxy.GetByID(1);
-            }
-            catch (AggregateException ex)
-            {
-                proxy.OnFormatServerErrorWasInvoked.ShouldBe(false);
-                ex.GetBaseException().ShouldBeOfType<UnsupportedMediaTypeException>();
-            }
+            proxy.GetByID(1);
+            proxy.OnFormatServerErrorWasInvoked.ShouldBe(false);
         }
 
         [TestMethod]
@@ -562,6 +528,7 @@ namespace Peasy.DataProxy.Http.Tests
         }
 
         [TestMethod]
+        [ExpectedException(typeof(NotImplementedException))]
         public void Insert_throws_NotImplementedException_when_server_status_code_is_NOT_IMPLEMENTED()
         {
             var handler = new Mock<HttpMessageHandler>();
@@ -575,18 +542,12 @@ namespace Peasy.DataProxy.Http.Tests
 
             var proxy = new HttpServiceProxyStub(new HttpClient(handler.Object));
 
-            try
-            {
-                proxy.Insert(new Customer());
-            }
-            catch (System.AggregateException ex)
-            {
-                proxy.OnFormatServerErrorWasInvoked.ShouldBe(true);
-                ex.GetBaseException().ShouldBeOfType<NotImplementedException>();
-            }
+            proxy.Insert(new Customer());
+            proxy.OnFormatServerErrorWasInvoked.ShouldBe(true);
         }
 
         [TestMethod]
+        [ExpectedException(typeof(ServiceException))]
         public void Insert_throws_ServiceException_when_server_status_code_is_BAD_REQUEST()
         {
             var handler = new Mock<HttpMessageHandler>();
@@ -600,18 +561,12 @@ namespace Peasy.DataProxy.Http.Tests
 
             var proxy = new HttpServiceProxyStub(new HttpClient(handler.Object));
 
-            try
-            {
-                proxy.Insert(new Customer());
-            }
-            catch (AggregateException ex)
-            {
-                proxy.OnFormatServerErrorWasInvoked.ShouldBe(true);
-                ex.GetBaseException().ShouldBeOfType<ServiceException>();
-            }
+            proxy.Insert(new Customer());
+            proxy.OnFormatServerErrorWasInvoked.ShouldBe(true);
         }
 
         [TestMethod]
+        [ExpectedException(typeof(UnsupportedMediaTypeException))]
         public void Insert_throws_UnsupportedMediaTypeException_when_bad_formatter_is_supplied()
         {
             var handler = new Mock<HttpMessageHandler>();
@@ -622,15 +577,8 @@ namespace Peasy.DataProxy.Http.Tests
 
             var proxy = new HttpServiceProxyStub(new HttpClient(handler.Object)) { Formatter = new XmlMediaTypeFormatter() };
 
-            try
-            {
-                proxy.Insert(new Customer());
-            }
-            catch (AggregateException ex)
-            {
-                proxy.OnFormatServerErrorWasInvoked.ShouldBe(false);
-                ex.GetBaseException().ShouldBeOfType<UnsupportedMediaTypeException>();
-            }
+            proxy.Insert(new Customer());
+            proxy.OnFormatServerErrorWasInvoked.ShouldBe(false);
         }
 
         [TestMethod]
@@ -792,6 +740,7 @@ namespace Peasy.DataProxy.Http.Tests
         }
 
         [TestMethod]
+        [ExpectedException(typeof(DomainObjectNotFoundException))]
         public void Update_throws_DomainObjectNotFoundException_when_server_status_code_is_NOT_FOUND()
         {
             var handler = new Mock<HttpMessageHandler>();
@@ -805,18 +754,12 @@ namespace Peasy.DataProxy.Http.Tests
 
             var proxy = new HttpServiceProxyStub(new HttpClient(handler.Object));
 
-            try
-            {
-                proxy.Update(new Customer());
-            }
-            catch (AggregateException ex)
-            {
-                proxy.OnFormatServerErrorWasInvoked.ShouldBe(true);
-                ex.GetBaseException().ShouldBeOfType<DomainObjectNotFoundException>();
-            }
+            proxy.Update(new Customer());
+            proxy.OnFormatServerErrorWasInvoked.ShouldBe(true);
         }
 
         [TestMethod]
+        [ExpectedException(typeof(ConcurrencyException))]
         public void Update_throws_ConcurrencyException_when_server_status_code_is_CONFLICT()
         {
             var handler = new Mock<HttpMessageHandler>();
@@ -830,18 +773,12 @@ namespace Peasy.DataProxy.Http.Tests
 
             var proxy = new HttpServiceProxyStub(new HttpClient(handler.Object));
 
-            try
-            {
-                proxy.Update(new Customer());
-            }
-            catch (AggregateException ex)
-            {
-                proxy.OnFormatServerErrorWasInvoked.ShouldBe(true);
-                ex.GetBaseException().ShouldBeOfType<ConcurrencyException>();
-            }
+            proxy.Update(new Customer());
+            proxy.OnFormatServerErrorWasInvoked.ShouldBe(true);
         }
 
         [TestMethod]
+        [ExpectedException(typeof(NotImplementedException))]
         public void Update_throws_NotImplementedException_when_server_status_code_is_NOT_IMPLEMENTED()
         {
             var handler = new Mock<HttpMessageHandler>();
@@ -855,18 +792,12 @@ namespace Peasy.DataProxy.Http.Tests
 
             var proxy = new HttpServiceProxyStub(new HttpClient(handler.Object));
 
-            try
-            {
-                proxy.Update(new Customer());
-            }
-            catch (AggregateException ex)
-            {
-                proxy.OnFormatServerErrorWasInvoked.ShouldBe(true);
-                ex.GetBaseException().ShouldBeOfType<NotImplementedException>();
-            }
+            proxy.Update(new Customer());
+            proxy.OnFormatServerErrorWasInvoked.ShouldBe(true);
         }
 
         [TestMethod]
+        [ExpectedException(typeof(ServiceException))]
         public void Update_throws_ServiceException_when_server_status_code_is_BAD_REQUEST()
         {
             var handler = new Mock<HttpMessageHandler>();
@@ -880,18 +811,12 @@ namespace Peasy.DataProxy.Http.Tests
 
             var proxy = new HttpServiceProxyStub(new HttpClient(handler.Object));
 
-            try
-            {
-                proxy.Update(new Customer());
-            }
-            catch (AggregateException ex)
-            {
-                proxy.OnFormatServerErrorWasInvoked.ShouldBe(true);
-                ex.GetBaseException().ShouldBeOfType<ServiceException>();
-            }
+            proxy.Update(new Customer());
+            proxy.OnFormatServerErrorWasInvoked.ShouldBe(true);
         }
 
         [TestMethod]
+        [ExpectedException(typeof(UnsupportedMediaTypeException))]
         public void Update_throws_UnsupportedMediaTypeException_when_bad_formatter_is_supplied()
         {
             var handler = new Mock<HttpMessageHandler>();
@@ -902,15 +827,8 @@ namespace Peasy.DataProxy.Http.Tests
 
             var proxy = new HttpServiceProxyStub(new HttpClient(handler.Object)) { Formatter = new XmlMediaTypeFormatter() };
 
-            try
-            {
-                proxy.Update(new Customer());
-            }
-            catch (AggregateException ex)
-            {
-                proxy.OnFormatServerErrorWasInvoked.ShouldBe(false);
-                ex.GetBaseException().ShouldBeOfType<UnsupportedMediaTypeException>();
-            }
+            proxy.Update(new Customer());
+            proxy.OnFormatServerErrorWasInvoked.ShouldBe(false);
         }
 
         [TestMethod]
@@ -1073,6 +991,188 @@ namespace Peasy.DataProxy.Http.Tests
         #endregion
 
         #region Delete
+
+        [TestMethod]
+        public void Delete_invokes_an_HTTP_DELETE_against_the_correct_uri()
+        {
+            var handler = new Mock<HttpMessageHandler>();
+
+            handler.Protected()
+                .Setup<Task<HttpResponseMessage>>("SendAsync", ItExpr.IsAny<HttpRequestMessage>(), ItExpr.IsAny<CancellationToken>())
+                .Returns(Task.FromResult(new HttpResponseMessage(HttpStatusCode.OK)))
+                .Callback<HttpRequestMessage, CancellationToken>((r, c) =>
+                {
+                    r.RequestUri.AbsoluteUri.ShouldBe("http://api/customers/1");
+                    Assert.AreEqual(HttpMethod.Delete, r.Method);
+                });
+
+            var proxy = new HttpServiceProxyStub(new HttpClient(handler.Object));
+            proxy.Delete(1);
+        }
+
+        [TestMethod]
+        public void Delete_invokes_expected_virtual_methods()
+        {
+            var handler = new Mock<HttpMessageHandler>();
+
+            handler.Protected()
+                .Setup<Task<HttpResponseMessage>>("SendAsync", ItExpr.IsAny<HttpRequestMessage>(), ItExpr.IsAny<CancellationToken>())
+                .Returns(Task.FromResult(new HttpResponseMessage(HttpStatusCode.OK)));
+
+            var proxy = new HttpServiceProxyStub(new HttpClient(handler.Object));
+            proxy.Delete(1);
+
+            proxy.BuildConfiguredClientWasInvoked.ShouldBe(true);
+        }
+
+        [TestMethod]
+        [ExpectedException(typeof(NotImplementedException))]
+        public void Delete_throws_NotImplementedException_when_server_status_code_is_NOT_IMPLEMENTED()
+        {
+            var handler = new Mock<HttpMessageHandler>();
+
+            handler.Protected()
+                .Setup<Task<HttpResponseMessage>>("SendAsync", ItExpr.IsAny<HttpRequestMessage>(), ItExpr.IsAny<CancellationToken>())
+                .Returns(Task.FromResult(new HttpResponseMessage(HttpStatusCode.NotImplemented)
+                {
+                    Content = new StringContent("Method not implemented", Encoding.UTF8, "application/json")
+                }));
+
+            var proxy = new HttpServiceProxyStub(new HttpClient(handler.Object));
+
+            proxy.Delete(1);
+            proxy.OnFormatServerErrorWasInvoked.ShouldBe(true);
+        }
+
+        [TestMethod]
+        [ExpectedException(typeof(DomainObjectNotFoundException))]
+        public void Delete_throws_DomainObjectNotFoundException_when_server_status_code_is_NOT_FOUND()
+        {
+            var handler = new Mock<HttpMessageHandler>();
+
+            handler.Protected()
+                .Setup<Task<HttpResponseMessage>>("SendAsync", ItExpr.IsAny<HttpRequestMessage>(), ItExpr.IsAny<CancellationToken>())
+                .Returns(Task.FromResult(new HttpResponseMessage(HttpStatusCode.NotFound)
+                {
+                    Content = new StringContent("the item was not found", Encoding.UTF8, "application/json")
+                }));
+
+            var proxy = new HttpServiceProxyStub(new HttpClient(handler.Object));
+
+            proxy.Delete(1);
+            proxy.OnFormatServerErrorWasInvoked.ShouldBe(true);
+        }
+
+        [TestMethod]
+        [ExpectedException(typeof(ServiceException))]
+        public void Delete_throws_ServiceException_when_server_status_code_is_BAD_REQUEST()
+        {
+            var handler = new Mock<HttpMessageHandler>();
+
+            handler.Protected()
+                .Setup<Task<HttpResponseMessage>>("SendAsync", ItExpr.IsAny<HttpRequestMessage>(), ItExpr.IsAny<CancellationToken>())
+                .Returns(Task.FromResult(new HttpResponseMessage(HttpStatusCode.BadRequest)
+                {
+                    Content = new StringContent("some known error occurred and was handled", Encoding.UTF8, "application/json")
+                }));
+
+            var proxy = new HttpServiceProxyStub(new HttpClient(handler.Object));
+
+            proxy.Delete(1);
+            proxy.OnFormatServerErrorWasInvoked.ShouldBe(true);
+        }
+
+        [TestMethod]
+        public async Task Delete_invokes_an_HTTP_DELETE_against_the_correct_uri_async()
+        {
+            var handler = new Mock<HttpMessageHandler>();
+
+            handler.Protected()
+                .Setup<Task<HttpResponseMessage>>("SendAsync", ItExpr.IsAny<HttpRequestMessage>(), ItExpr.IsAny<CancellationToken>())
+                .Returns(Task.FromResult(new HttpResponseMessage(HttpStatusCode.OK)))
+                .Callback<HttpRequestMessage, CancellationToken>((r, c) =>
+                {
+                    r.RequestUri.AbsoluteUri.ShouldBe("http://api/customers/1");
+                    Assert.AreEqual(HttpMethod.Delete, r.Method);
+                });
+
+            var proxy = new HttpServiceProxyStub(new HttpClient(handler.Object));
+            await proxy.DeleteAsync(1);
+        }
+
+        [TestMethod]
+        public async Task Delete_invokes_expected_virtual_methods_async()
+        {
+            var handler = new Mock<HttpMessageHandler>();
+
+            handler.Protected()
+                .Setup<Task<HttpResponseMessage>>("SendAsync", ItExpr.IsAny<HttpRequestMessage>(), ItExpr.IsAny<CancellationToken>())
+                .Returns(Task.FromResult(new HttpResponseMessage(HttpStatusCode.OK)));
+
+            var proxy = new HttpServiceProxyStub(new HttpClient(handler.Object));
+            await proxy.DeleteAsync(1);
+
+            proxy.BuildConfiguredClientWasInvoked.ShouldBe(true);
+        }
+
+        [TestMethod]
+        [ExpectedException(typeof(NotImplementedException))]
+        public async Task Delete_throws_NotImplementedException_when_server_status_code_is_NOT_IMPLEMENTED_async()
+        {
+            var handler = new Mock<HttpMessageHandler>();
+
+            handler.Protected()
+                .Setup<Task<HttpResponseMessage>>("SendAsync", ItExpr.IsAny<HttpRequestMessage>(), ItExpr.IsAny<CancellationToken>())
+                .Returns(Task.FromResult(new HttpResponseMessage(HttpStatusCode.NotImplemented)
+                {
+                    Content = new StringContent("Method not implemented", Encoding.UTF8, "application/json")
+                }));
+
+            var proxy = new HttpServiceProxyStub(new HttpClient(handler.Object));
+
+            await proxy.DeleteAsync(1);
+            proxy.OnFormatServerErrorWasInvoked.ShouldBe(true);
+        }
+
+        [TestMethod]
+        [ExpectedException(typeof(DomainObjectNotFoundException))]
+        public async Task Delete_throws_DomainObjectNotFoundException_when_server_status_code_is_NOT_FOUND_Async()
+        {
+            var handler = new Mock<HttpMessageHandler>();
+
+            handler.Protected()
+                .Setup<Task<HttpResponseMessage>>("SendAsync", ItExpr.IsAny<HttpRequestMessage>(), ItExpr.IsAny<CancellationToken>())
+                .Returns(Task.FromResult(new HttpResponseMessage(HttpStatusCode.NotFound)
+                {
+                    Content = new StringContent("the item was not found", Encoding.UTF8, "application/json")
+                }));
+
+            var proxy = new HttpServiceProxyStub(new HttpClient(handler.Object));
+
+            await proxy.DeleteAsync(1);
+            proxy.OnFormatServerErrorWasInvoked.ShouldBe(true);
+        }
+
+        [TestMethod]
+        [ExpectedException(typeof(ServiceException))]
+        public async Task Delete_throws_ServiceException_when_server_status_code_is_BAD_REQUEST_Async()
+        {
+            var handler = new Mock<HttpMessageHandler>();
+
+            handler.Protected()
+                .Setup<Task<HttpResponseMessage>>("SendAsync", ItExpr.IsAny<HttpRequestMessage>(), ItExpr.IsAny<CancellationToken>())
+                .Returns(Task.FromResult(new HttpResponseMessage(HttpStatusCode.BadRequest)
+                {
+                    Content = new StringContent("some known error occurred and was handled", Encoding.UTF8, "application/json")
+                }));
+
+            var proxy = new HttpServiceProxyStub(new HttpClient(handler.Object));
+
+            await proxy.DeleteAsync(1);
+            proxy.OnFormatServerErrorWasInvoked.ShouldBe(true);
+        }
+
         #endregion
+
     }
 }
