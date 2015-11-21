@@ -137,7 +137,14 @@ namespace Orders.com.DAL.Http
         /// <returns></returns>
         protected virtual TOut GET<TOut>(string requestUri)
         {
-            return GETAsync<TOut>(requestUri).Result;
+            try
+            {
+                return GETAsync<TOut>(requestUri).Result;
+            }
+            catch (AggregateException ex)
+            {
+                throw ex.GetBaseException();
+            }
         }
 
         /// <summary>
@@ -168,7 +175,14 @@ namespace Orders.com.DAL.Http
         /// <returns></returns>
         protected virtual TOut POST<TIn, TOut>(TIn args, string requestUri)
         {
-            return POSTAsync<TIn, TOut>(args, requestUri).Result;
+            try
+            {
+                return POSTAsync<TIn, TOut>(args, requestUri).Result;
+            }
+            catch (AggregateException ex)
+            {
+                throw ex.GetBaseException();
+            }
         }
 
         /// <summary>
@@ -199,7 +213,14 @@ namespace Orders.com.DAL.Http
         /// <returns></returns>
         protected virtual TOut PUT<TIn, TOut>(TIn args, string requestUri)
         {
-            return PUTAsync<TIn, TOut>(args, requestUri).Result;
+            try
+            {
+                return PUTAsync<TIn, TOut>(args, requestUri).Result;
+            }
+            catch (AggregateException ex)
+            {
+                throw ex.GetBaseException();
+            }
         }
 
         /// <summary>
@@ -227,7 +248,14 @@ namespace Orders.com.DAL.Http
         /// <returns></returns>
         protected virtual void DELETE(string requestUri)
         {
-            DELETEAsync(requestUri).Wait();
+            try
+            {
+                DELETEAsync(requestUri).Wait();
+            }
+            catch (AggregateException ex)
+            {
+                throw ex.GetBaseException();
+            }
         }
 
         /// <summary>
@@ -262,7 +290,7 @@ namespace Orders.com.DAL.Http
             return entity;
         }
 
-        protected virtual void OnParseResponse<TOut>(HttpResponseMessage response, TOut entity) 
+        protected virtual void OnParseResponse<TOut>(HttpResponseMessage response, TOut entity)
         {
         }
 
