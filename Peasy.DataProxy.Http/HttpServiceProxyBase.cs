@@ -1,11 +1,13 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
 using System.Net.Http;
 using System.Net.Http.Formatting;
 using System.Threading.Tasks;
-using System.Text.RegularExpressions;
 using Peasy.Core;
 using Peasy.Exception;
 using Peasy;
+using System;
+using System.Net;
 
 namespace Orders.com.DAL.Http
 {
@@ -13,79 +15,114 @@ namespace Orders.com.DAL.Http
     {
         protected abstract string RequestUri { get; }
 
-        protected virtual string AcceptHeader
-        {
-            get { return "application/json"; }
-        }
-
+        /// <summary>
+        /// Invokes an HTTP GET against the configured <see cref="RequestUri"/> 
+        /// </summary>
         /// <exception cref="ServiceException">Thrown when server returns 400 - Bad Request</exception>
+        /// <exception cref="NotImplementedException">Thrown when server returns 501 - Not Implemented</exception>
         public virtual IEnumerable<T> GetAll()
         {
             return GET<IEnumerable<T>>(RequestUri);
         }
 
+        /// <summary>
+        /// Invokes an HTTP GET against the configured <see cref="RequestUri" and supplied id/> 
+        /// </summary>
         /// <exception cref="DomainObjectNotFoundException">Thrown when server returns 404 - Not Found</exception>
         /// <exception cref="ServiceException">Thrown when server returns 400 - Bad Request</exception>
+        /// <exception cref="NotImplementedException">Thrown when server returns 501 - Not Implemented</exception>
         public virtual T GetByID(TKey id)
         {
             string requestUri = $"{RequestUri}/{id}";
             return GET<T>(requestUri);
         }
 
+        /// <summary>
+        /// Invokes an HTTP POST against the configured <see cref="RequestUri"/> 
+        /// </summary>
         /// <exception cref="ServiceException">Thrown when server returns 400 - Bad Request</exception>
+        /// <exception cref="NotImplementedException">Thrown when server returns 501 - Not Implemented</exception>
         public virtual T Insert(T entity)
         {
             return POST<T, T>(entity, RequestUri);
         }
 
+        /// <summary>
+        /// Invokes an HTTP PUT against the configured <see cref="RequestUri"/> 
+        /// </summary>
         /// <exception cref="DomainObjectNotFoundException">Thrown when server returns 404 - Not Found</exception>
         /// <exception cref="ConcurrencyException">Thrown when server returns 409 - Conflict</exception> 
         /// <exception cref="ServiceException">Thrown when server returns 400 - Bad Request</exception>
+        /// <exception cref="NotImplementedException">Thrown when server returns 501 - Not Implemented</exception>
         public virtual T Update(T entity)
         {
             string requestUri = $"{RequestUri}/{entity.ID}";
             return PUT<T, T>(entity, requestUri);
         }
 
+        /// <summary>
+        /// Invokes an HTTP DELETE against the configured <see cref="RequestUri"/> 
+        /// </summary>
         /// <exception cref="DomainObjectNotFoundException">Thrown when server returns 404 - Not Found</exception>
         /// <exception cref="ServiceException">Thrown when server returns 400 - Bad Request</exception>
+        /// <exception cref="NotImplementedException">Thrown when server returns 501 - Not Implemented</exception>
         public virtual void Delete(TKey id)
         {
             string requestUri = $"{RequestUri}/{id}";
             DELETE(requestUri);
         }
 
+        /// <summary>
+        /// Invokes an HTTP GET against the configured <see cref="RequestUri"/> 
+        /// </summary>
         /// <exception cref="ServiceException">Thrown when server returns 400 - Bad Request</exception>
+        /// <exception cref="NotImplementedException">Thrown when server returns 501 - Not Implemented</exception>
         public async virtual Task<IEnumerable<T>> GetAllAsync()
         {
             return await GETAsync<IEnumerable<T>>(RequestUri);
         }
 
+        /// <summary>
+        /// Invokes an HTTP GET against the configured <see cref="RequestUri" and supplied id/> 
+        /// </summary>
         /// <exception cref="DomainObjectNotFoundException">Thrown when server returns 404 - Not Found</exception>
         /// <exception cref="ServiceException">Thrown when server returns 400 - Bad Request</exception>
+        /// <exception cref="NotImplementedException">Thrown when server returns 501 - Not Implemented</exception>
         public async virtual Task<T> GetByIDAsync(TKey id)
         {
             string requestUri = $"{RequestUri}/{id}";
             return await GETAsync<T>(requestUri);
         }
 
+        /// <summary>
+        /// Invokes an HTTP POST against the configured <see cref="RequestUri"/> 
+        /// </summary>
         /// <exception cref="ServiceException">Thrown when server returns 400 - Bad Request</exception>
+        /// <exception cref="NotImplementedException">Thrown when server returns 501 - Not Implemented</exception>
         public async virtual Task<T> InsertAsync(T entity)
         {
             return await POSTAsync<T, T>(entity, RequestUri);
         }
 
+        /// <summary>
+        /// Invokes an HTTP PUT against the configured <see cref="RequestUri"/> 
+        /// </summary>
         /// <exception cref="DomainObjectNotFoundException">Thrown when server returns 404 - Not Found</exception>
         /// <exception cref="ConcurrencyException">Thrown when server returns 409 - Conflict</exception> 
         /// <exception cref="ServiceException">Thrown when server returns 400 - Bad Request</exception>
+        /// <exception cref="NotImplementedException">Thrown when server returns 501 - Not Implemented</exception>
         public async virtual Task<T> UpdateAsync(T entity)
         {
             string requestUri = $"{RequestUri}/{entity.ID}";
             return await PUTAsync<T, T>(entity, requestUri);
         }
 
+        /// <summary>
+        /// Invokes an HTTP DELETE against the configured <see cref="RequestUri"/> 
+        /// </summary>
         /// <exception cref="DomainObjectNotFoundException">Thrown when server returns 404 - Not Found</exception>
         /// <exception cref="ServiceException">Thrown when server returns 400 - Bad Request</exception>
+        /// <exception cref="NotImplementedException">Thrown when server returns 501 - Not Implemented</exception>
         public async virtual Task DeleteAsync(TKey id)
         {
             string requestUri = $"{RequestUri}/{id}";
@@ -108,7 +145,6 @@ namespace Orders.com.DAL.Http
                                  {
                                      returnValue = ParseResponse<TOut>(response);
                                  });
-
                 task.Wait();
                 return returnValue;
             }
@@ -248,8 +284,7 @@ namespace Orders.com.DAL.Http
 
         protected virtual HttpClient BuildConfiguredClient()
         {
-            HttpClientHandler handler = new HttpClientHandler() { UseDefaultCredentials = true };
-            return new HttpClient(handler); 
+            return new HttpClient();
         }
 
         protected virtual MediaTypeFormatter GetMediaTypeFormatter()
@@ -291,27 +326,28 @@ namespace Orders.com.DAL.Http
             string message = string.Empty;
             switch (response.StatusCode)
             {
-                case System.Net.HttpStatusCode.NotFound:
-                    message = StripMessage(response.Content.ReadAsAsync<object>().Result.ToString());
-                    throw new DomainObjectNotFoundException(message);
+                case HttpStatusCode.BadRequest:
+                    message = OnFormatServerError(response.Content.ReadAsStringAsync().Result.ToString());
+                    throw new ServiceException(message);
 
-                case System.Net.HttpStatusCode.Conflict:
-                    message = StripMessage(response.Content.ReadAsAsync<object>().Result.ToString());
+                case HttpStatusCode.Conflict:
+                    message = OnFormatServerError(response.Content.ReadAsStringAsync().Result.ToString());
                     throw new ConcurrencyException(message);
 
-                case System.Net.HttpStatusCode.BadRequest:
-                    message = StripMessage(response.Content.ReadAsAsync<object>().Result.ToString());
-                    throw new ServiceException(message);
+                case HttpStatusCode.NotFound:
+                    message = OnFormatServerError(response.Content.ReadAsStringAsync().Result.ToString());
+                    throw new DomainObjectNotFoundException(message);
+
+                case HttpStatusCode.NotImplemented:
+                    message = OnFormatServerError(response.Content.ReadAsStringAsync().Result.ToString());
+                    throw new NotImplementedException(message);
             }
             return response.EnsureSuccessStatusCode();
         }
 
-        protected virtual string StripMessage(string message)
+        protected virtual string OnFormatServerError(string message)
         {
-            var msg = message.Split(new[] { ':' })[1];
-            Regex rgx = new Regex("[\\{\\}\"]"); // get rid of the quotes and braces
-            msg = rgx.Replace(msg, "").Trim();
-            return msg;
+            return message;
         }
 
         public virtual bool IsLatencyProne
