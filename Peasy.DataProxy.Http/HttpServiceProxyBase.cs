@@ -137,17 +137,7 @@ namespace Orders.com.DAL.Http
         /// <returns></returns>
         protected virtual TOut GET<TOut>(string requestUri)
         {
-            using (var client = BuildConfiguredClient())
-            {
-                TOut returnValue = default(TOut);
-                var task = client.GetAsync(requestUri)
-                                 .ContinueWith(response =>
-                                 {
-                                     returnValue = ParseResponse<TOut>(response);
-                                 });
-                task.Wait();
-                return returnValue;
-            }
+            return GETAsync<TOut>(requestUri).Result;
         }
 
         /// <summary>
@@ -178,17 +168,7 @@ namespace Orders.com.DAL.Http
         /// <returns></returns>
         protected virtual TOut POST<TIn, TOut>(TIn args, string requestUri)
         {
-            using (var client = BuildConfiguredClient())
-            {
-                var returnValue = default(TOut);
-                var task = client.PostAsync<TIn>(requestUri, args, GetMediaTypeFormatter())
-                                 .ContinueWith(response =>
-                                 {
-                                     returnValue = ParseResponse<TOut>(response);
-                                 });
-                task.Wait();
-                return returnValue;
-            }
+            return POSTAsync<TIn, TOut>(args, requestUri).Result;
         }
 
         /// <summary>
@@ -219,17 +199,7 @@ namespace Orders.com.DAL.Http
         /// <returns></returns>
         protected virtual TOut PUT<TIn, TOut>(TIn args, string requestUri)
         {
-            using (var client = BuildConfiguredClient())
-            {
-                var returnValue = default(TOut);
-                var task = client.PutAsync<TIn>(requestUri, args, GetMediaTypeFormatter())
-                                 .ContinueWith(response =>
-                                 {
-                                     returnValue = ParseResponse<TOut>(response);
-                                 });
-                task.Wait();
-                return returnValue;
-            }
+            return PUTAsync<TIn, TOut>(args, requestUri).Result;
         }
 
         /// <summary>
@@ -257,15 +227,7 @@ namespace Orders.com.DAL.Http
         /// <returns></returns>
         protected virtual void DELETE(string requestUri)
         {
-            using (var client = BuildConfiguredClient())
-            {
-                var task = client.DeleteAsync(requestUri)
-                                 .ContinueWith(response =>
-                                 {
-                                     EnsureSuccessStatusCode(response.Result);
-                                 });
-                task.Wait();
-            }
+            DELETEAsync(requestUri).Wait();
         }
 
         /// <summary>
@@ -290,17 +252,6 @@ namespace Orders.com.DAL.Http
         protected virtual MediaTypeFormatter GetMediaTypeFormatter()
         {
             return new JsonMediaTypeFormatter();
-        }
-
-        protected virtual TOut ParseResponse<TOut>(Task<HttpResponseMessage> response)
-        {
-            var result = response.Result;
-            EnsureSuccessStatusCode(result);
-            var task = result.Content.ReadAsAsync<TOut>(new[] { GetMediaTypeFormatter() });
-            task.Wait();
-            var entity = task.Result;
-            OnParseResponse(result, entity);
-            return entity;
         }
 
         protected virtual async Task<TOut> ParseResponseAsync<TOut>(HttpResponseMessage result)
