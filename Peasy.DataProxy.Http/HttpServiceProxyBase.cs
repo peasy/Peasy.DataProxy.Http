@@ -16,7 +16,7 @@ namespace Orders.com.DAL.Http
         protected abstract string RequestUri { get; }
 
         /// <summary>
-        /// Invokes an HTTP GET against the configured <see cref="RequestUri"/> 
+        /// Invokes a synchronous HTTP GET against the configured <see cref="RequestUri"/> 
         /// </summary>
         /// <exception cref="ServiceException">Thrown when server returns 400 - Bad Request</exception>
         /// <exception cref="NotImplementedException">Thrown when server returns 501 - Not Implemented</exception>
@@ -26,7 +26,7 @@ namespace Orders.com.DAL.Http
         }
 
         /// <summary>
-        /// Invokes an HTTP GET against the configured <see cref="RequestUri" and supplied id/> 
+        /// Invokes a synchronous HTTP GET against the configured <see cref="RequestUri" and supplied id/> 
         /// </summary>
         /// <exception cref="DomainObjectNotFoundException">Thrown when server returns 404 - Not Found</exception>
         /// <exception cref="ServiceException">Thrown when server returns 400 - Bad Request</exception>
@@ -38,7 +38,7 @@ namespace Orders.com.DAL.Http
         }
 
         /// <summary>
-        /// Invokes an HTTP POST against the configured <see cref="RequestUri"/> 
+        /// Invokes a synchronous HTTP POST against the configured <see cref="RequestUri"/> 
         /// </summary>
         /// <exception cref="ServiceException">Thrown when server returns 400 - Bad Request</exception>
         /// <exception cref="NotImplementedException">Thrown when server returns 501 - Not Implemented</exception>
@@ -48,7 +48,7 @@ namespace Orders.com.DAL.Http
         }
 
         /// <summary>
-        /// Invokes an HTTP PUT against the configured <see cref="RequestUri"/> 
+        /// Invokes a synchronous HTTP PUT against the configured <see cref="RequestUri"/> 
         /// </summary>
         /// <exception cref="DomainObjectNotFoundException">Thrown when server returns 404 - Not Found</exception>
         /// <exception cref="ConcurrencyException">Thrown when server returns 409 - Conflict</exception> 
@@ -61,7 +61,7 @@ namespace Orders.com.DAL.Http
         }
 
         /// <summary>
-        /// Invokes an HTTP DELETE against the configured <see cref="RequestUri"/> 
+        /// Invokes a synchronous HTTP DELETE against the configured <see cref="RequestUri"/> 
         /// </summary>
         /// <exception cref="DomainObjectNotFoundException">Thrown when server returns 404 - Not Found</exception>
         /// <exception cref="ServiceException">Thrown when server returns 400 - Bad Request</exception>
@@ -73,7 +73,7 @@ namespace Orders.com.DAL.Http
         }
 
         /// <summary>
-        /// Invokes an HTTP GET against the configured <see cref="RequestUri"/> 
+        /// Invokes an asynchronous HTTP GET against the configured <see cref="RequestUri"/> 
         /// </summary>
         /// <exception cref="ServiceException">Thrown when server returns 400 - Bad Request</exception>
         /// <exception cref="NotImplementedException">Thrown when server returns 501 - Not Implemented</exception>
@@ -83,7 +83,7 @@ namespace Orders.com.DAL.Http
         }
 
         /// <summary>
-        /// Invokes an HTTP GET against the configured <see cref="RequestUri" and supplied id/> 
+        /// Invokes an asynchronous HTTP GET against the configured <see cref="RequestUri" and supplied id/> 
         /// </summary>
         /// <exception cref="DomainObjectNotFoundException">Thrown when server returns 404 - Not Found</exception>
         /// <exception cref="ServiceException">Thrown when server returns 400 - Bad Request</exception>
@@ -95,7 +95,7 @@ namespace Orders.com.DAL.Http
         }
 
         /// <summary>
-        /// Invokes an HTTP POST against the configured <see cref="RequestUri"/> 
+        /// Invokes an asynchronous HTTP POST against the configured <see cref="RequestUri"/> 
         /// </summary>
         /// <exception cref="ServiceException">Thrown when server returns 400 - Bad Request</exception>
         /// <exception cref="NotImplementedException">Thrown when server returns 501 - Not Implemented</exception>
@@ -105,7 +105,7 @@ namespace Orders.com.DAL.Http
         }
 
         /// <summary>
-        /// Invokes an HTTP PUT against the configured <see cref="RequestUri"/> 
+        /// Invokes an asynchronous HTTP PUT against the configured <see cref="RequestUri"/> 
         /// </summary>
         /// <exception cref="DomainObjectNotFoundException">Thrown when server returns 404 - Not Found</exception>
         /// <exception cref="ConcurrencyException">Thrown when server returns 409 - Conflict</exception> 
@@ -118,7 +118,7 @@ namespace Orders.com.DAL.Http
         }
 
         /// <summary>
-        /// Invokes an HTTP DELETE against the configured <see cref="RequestUri"/> 
+        /// Invokes an asynchronous HTTP DELETE against the configured <see cref="RequestUri"/> 
         /// </summary>
         /// <exception cref="DomainObjectNotFoundException">Thrown when server returns 404 - Not Found</exception>
         /// <exception cref="ServiceException">Thrown when server returns 400 - Bad Request</exception>
