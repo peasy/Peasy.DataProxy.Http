@@ -314,6 +314,30 @@ namespace Peasy.DataProxy.Http.Tests
         }
 
         [TestMethod]
+        public void GetByID_throws_DomainObjectNotFoundException_when_server_status_code_is_NOT_FOUND()
+        {
+            var handler = new Mock<HttpMessageHandler>();
+
+            handler.Protected()
+                .Setup<Task<HttpResponseMessage>>("SendAsync", ItExpr.IsAny<HttpRequestMessage>(), ItExpr.IsAny<CancellationToken>())
+                .Returns(Task.FromResult(new HttpResponseMessage(HttpStatusCode.NotFound)
+                {
+                    Content = new StringContent("the item was not found", Encoding.UTF8, "application/json")
+                }));
+
+            var proxy = new HttpServiceProxyStub(new HttpClient(handler.Object));
+
+            try
+            {
+                proxy.GetByID(1);
+            }
+            catch (AggregateException ex)
+            {
+                proxy.OnFormatServerErrorWasInvoked.ShouldBe(true);
+                ex.GetBaseException().ShouldBeOfType<DomainObjectNotFoundException>();
+            }
+        }
+        [TestMethod]
         public void GetByID_throws_ServiceException_when_server_status_code_is_BAD_REQUEST()
         {
             var handler = new Mock<HttpMessageHandler>();
@@ -421,6 +445,25 @@ namespace Peasy.DataProxy.Http.Tests
                 .Returns(Task.FromResult(new HttpResponseMessage(HttpStatusCode.NotImplemented)
                 {
                     Content = new StringContent("Method not implemented", Encoding.UTF8, "application/json")
+                }));
+
+            var proxy = new HttpServiceProxyStub(new HttpClient(handler.Object));
+
+            await proxy.GetByIDAsync(1);
+            proxy.OnFormatServerErrorWasInvoked.ShouldBe(true);
+        }
+
+        [TestMethod]
+        [ExpectedException(typeof(DomainObjectNotFoundException))]
+        public async Task GetByID_throws_DomainObjectNotFoundException_when_server_status_code_is_NOT_FOUND_Async()
+        {
+            var handler = new Mock<HttpMessageHandler>();
+
+            handler.Protected()
+                .Setup<Task<HttpResponseMessage>>("SendAsync", ItExpr.IsAny<HttpRequestMessage>(), ItExpr.IsAny<CancellationToken>())
+                .Returns(Task.FromResult(new HttpResponseMessage(HttpStatusCode.NotFound)
+                {
+                    Content = new StringContent("the item was not found", Encoding.UTF8, "application/json")
                 }));
 
             var proxy = new HttpServiceProxyStub(new HttpClient(handler.Object));
@@ -712,6 +755,321 @@ namespace Peasy.DataProxy.Http.Tests
         #endregion
 
         #region Update
+
+        [TestMethod]
+        public void Update_invokes_an_HTTP_PUT_against_the_correct_uri()
+        {
+            var handler = new Mock<HttpMessageHandler>();
+
+            handler.Protected()
+                .Setup<Task<HttpResponseMessage>>("SendAsync", ItExpr.IsAny<HttpRequestMessage>(), ItExpr.IsAny<CancellationToken>())
+                .Returns(Task.FromResult(new HttpResponseMessage(HttpStatusCode.OK) { Content = new StringContent("{\"ID\": 1}", Encoding.UTF8, "application/json") }))
+                .Callback<HttpRequestMessage, CancellationToken>((r, c) =>
+                {
+                    r.RequestUri.AbsoluteUri.ShouldBe("http://api/customers/1");
+                    Assert.AreEqual(HttpMethod.Put, r.Method);
+                });
+
+            var proxy = new HttpServiceProxyStub(new HttpClient(handler.Object));
+            proxy.Update(new Customer() { ID = 1 });
+        }
+
+        [TestMethod]
+        public void Update_invokes_expected_virtual_methods()
+        {
+            var handler = new Mock<HttpMessageHandler>();
+
+            handler.Protected()
+                .Setup<Task<HttpResponseMessage>>("SendAsync", ItExpr.IsAny<HttpRequestMessage>(), ItExpr.IsAny<CancellationToken>())
+                .Returns(Task.FromResult(new HttpResponseMessage(HttpStatusCode.OK) { Content = new StringContent("{\"ID\": 1}", Encoding.UTF8, "application/json") }));
+
+            var proxy = new HttpServiceProxyStub(new HttpClient(handler.Object));
+            proxy.Update(new Customer() { ID = 1 });
+
+            proxy.BuildConfiguredClientWasInvoked.ShouldBe(true);
+            proxy.GetMediaTypeFormatterWasInvoked.ShouldBe(true);
+            proxy.OnParseResponseWasInvoked.ShouldBe(true);
+        }
+
+        [TestMethod]
+        public void Update_throws_DomainObjectNotFoundException_when_server_status_code_is_NOT_FOUND()
+        {
+            var handler = new Mock<HttpMessageHandler>();
+
+            handler.Protected()
+                .Setup<Task<HttpResponseMessage>>("SendAsync", ItExpr.IsAny<HttpRequestMessage>(), ItExpr.IsAny<CancellationToken>())
+                .Returns(Task.FromResult(new HttpResponseMessage(HttpStatusCode.NotFound)
+                {
+                    Content = new StringContent("item was not found", Encoding.UTF8, "application/json")
+                }));
+
+            var proxy = new HttpServiceProxyStub(new HttpClient(handler.Object));
+
+            try
+            {
+                proxy.Update(new Customer());
+            }
+            catch (AggregateException ex)
+            {
+                proxy.OnFormatServerErrorWasInvoked.ShouldBe(true);
+                ex.GetBaseException().ShouldBeOfType<DomainObjectNotFoundException>();
+            }
+        }
+
+        [TestMethod]
+        public void Update_throws_ConcurrencyException_when_server_status_code_is_CONFLICT()
+        {
+            var handler = new Mock<HttpMessageHandler>();
+
+            handler.Protected()
+                .Setup<Task<HttpResponseMessage>>("SendAsync", ItExpr.IsAny<HttpRequestMessage>(), ItExpr.IsAny<CancellationToken>())
+                .Returns(Task.FromResult(new HttpResponseMessage(HttpStatusCode.Conflict)
+                {
+                    Content = new StringContent("this item was changed by another user", Encoding.UTF8, "application/json")
+                }));
+
+            var proxy = new HttpServiceProxyStub(new HttpClient(handler.Object));
+
+            try
+            {
+                proxy.Update(new Customer());
+            }
+            catch (AggregateException ex)
+            {
+                proxy.OnFormatServerErrorWasInvoked.ShouldBe(true);
+                ex.GetBaseException().ShouldBeOfType<ConcurrencyException>();
+            }
+        }
+
+        [TestMethod]
+        public void Update_throws_NotImplementedException_when_server_status_code_is_NOT_IMPLEMENTED()
+        {
+            var handler = new Mock<HttpMessageHandler>();
+
+            handler.Protected()
+                .Setup<Task<HttpResponseMessage>>("SendAsync", ItExpr.IsAny<HttpRequestMessage>(), ItExpr.IsAny<CancellationToken>())
+                .Returns(Task.FromResult(new HttpResponseMessage(HttpStatusCode.NotImplemented)
+                {
+                    Content = new StringContent("Method not implemented", Encoding.UTF8, "application/json")
+                }));
+
+            var proxy = new HttpServiceProxyStub(new HttpClient(handler.Object));
+
+            try
+            {
+                proxy.Update(new Customer());
+            }
+            catch (AggregateException ex)
+            {
+                proxy.OnFormatServerErrorWasInvoked.ShouldBe(true);
+                ex.GetBaseException().ShouldBeOfType<NotImplementedException>();
+            }
+        }
+
+        [TestMethod]
+        public void Update_throws_ServiceException_when_server_status_code_is_BAD_REQUEST()
+        {
+            var handler = new Mock<HttpMessageHandler>();
+
+            handler.Protected()
+                .Setup<Task<HttpResponseMessage>>("SendAsync", ItExpr.IsAny<HttpRequestMessage>(), ItExpr.IsAny<CancellationToken>())
+                .Returns(Task.FromResult(new HttpResponseMessage(HttpStatusCode.BadRequest)
+                {
+                    Content = new StringContent("some known error occurred and was handled", Encoding.UTF8, "application/json")
+                }));
+
+            var proxy = new HttpServiceProxyStub(new HttpClient(handler.Object));
+
+            try
+            {
+                proxy.Update(new Customer());
+            }
+            catch (AggregateException ex)
+            {
+                proxy.OnFormatServerErrorWasInvoked.ShouldBe(true);
+                ex.GetBaseException().ShouldBeOfType<ServiceException>();
+            }
+        }
+
+        [TestMethod]
+        public void Update_throws_UnsupportedMediaTypeException_when_bad_formatter_is_supplied()
+        {
+            var handler = new Mock<HttpMessageHandler>();
+
+            handler.Protected()
+                .Setup<Task<HttpResponseMessage>>("SendAsync", ItExpr.IsAny<HttpRequestMessage>(), ItExpr.IsAny<CancellationToken>())
+                .Returns(Task.FromResult(new HttpResponseMessage(HttpStatusCode.OK) { Content = new StringContent("[{\"ID\": 1}, {\"ID\":2}]", Encoding.UTF8, "application/json") }));
+
+            var proxy = new HttpServiceProxyStub(new HttpClient(handler.Object)) { Formatter = new XmlMediaTypeFormatter() };
+
+            try
+            {
+                proxy.Update(new Customer());
+            }
+            catch (AggregateException ex)
+            {
+                proxy.OnFormatServerErrorWasInvoked.ShouldBe(false);
+                ex.GetBaseException().ShouldBeOfType<UnsupportedMediaTypeException>();
+            }
+        }
+
+        [TestMethod]
+        public void Update_returns_expected_item()
+        {
+            var handler = new Mock<HttpMessageHandler>();
+
+            handler.Protected()
+                .Setup<Task<HttpResponseMessage>>("SendAsync", ItExpr.IsAny<HttpRequestMessage>(), ItExpr.IsAny<CancellationToken>())
+                .Returns(Task.FromResult(new HttpResponseMessage(HttpStatusCode.OK) { Content = new StringContent("{\"ID\": 1}", Encoding.UTF8, "application/json") }));
+
+            var proxy = new HttpServiceProxyStub(new HttpClient(handler.Object));
+            var customer = proxy.Update(new Customer());
+
+            customer.ID.ShouldBe(1);
+        }
+
+        [TestMethod]
+        public async Task Update_invokes_an_HTTP_PUT_against_the_correct_uri_async()
+        {
+            var handler = new Mock<HttpMessageHandler>();
+
+            handler.Protected()
+                .Setup<Task<HttpResponseMessage>>("SendAsync", ItExpr.IsAny<HttpRequestMessage>(), ItExpr.IsAny<CancellationToken>())
+                .Returns(Task.FromResult(new HttpResponseMessage(HttpStatusCode.OK) { Content = new StringContent("{\"ID\": 1}", Encoding.UTF8, "application/json") }))
+                .Callback<HttpRequestMessage, CancellationToken>((r, c) =>
+                {
+                    r.RequestUri.AbsoluteUri.ShouldBe("http://api/customers/1");
+                    Assert.AreEqual(HttpMethod.Put, r.Method);
+                });
+
+            var proxy = new HttpServiceProxyStub(new HttpClient(handler.Object));
+            await proxy.UpdateAsync(new Customer() { ID = 1 });
+        }
+
+        [TestMethod]
+        public async Task Update_invokes_expected_virtual_methods_async()
+        {
+            var handler = new Mock<HttpMessageHandler>();
+
+            handler.Protected()
+                .Setup<Task<HttpResponseMessage>>("SendAsync", ItExpr.IsAny<HttpRequestMessage>(), ItExpr.IsAny<CancellationToken>())
+                .Returns(Task.FromResult(new HttpResponseMessage(HttpStatusCode.OK) { Content = new StringContent("{\"ID\": 1}", Encoding.UTF8, "application/json") }));
+
+            var proxy = new HttpServiceProxyStub(new HttpClient(handler.Object));
+            await proxy.UpdateAsync(new Customer());
+
+            proxy.BuildConfiguredClientWasInvoked.ShouldBe(true);
+            proxy.GetMediaTypeFormatterWasInvoked.ShouldBe(true);
+            proxy.OnParseResponseWasInvoked.ShouldBe(true);
+        }
+
+        [TestMethod]
+        [ExpectedException(typeof(NotImplementedException))]
+        public async Task Update_throws_NotImplementedException_when_server_status_code_is_NOT_IMPLEMENTED_async()
+        {
+            var handler = new Mock<HttpMessageHandler>();
+
+            handler.Protected()
+                .Setup<Task<HttpResponseMessage>>("SendAsync", ItExpr.IsAny<HttpRequestMessage>(), ItExpr.IsAny<CancellationToken>())
+                .Returns(Task.FromResult(new HttpResponseMessage(HttpStatusCode.NotImplemented)
+                {
+                    Content = new StringContent("Method not implemented", Encoding.UTF8, "application/json")
+                }));
+
+            var proxy = new HttpServiceProxyStub(new HttpClient(handler.Object));
+
+            await proxy.UpdateAsync(new Customer());
+            proxy.OnFormatServerErrorWasInvoked.ShouldBe(true);
+        }
+
+        [TestMethod]
+        [ExpectedException(typeof(DomainObjectNotFoundException))]
+        public async Task Update_throws_DomainObjectNotFoundException_when_server_status_code_is_NOT_FOUND_Async()
+        {
+            var handler = new Mock<HttpMessageHandler>();
+
+            handler.Protected()
+                .Setup<Task<HttpResponseMessage>>("SendAsync", ItExpr.IsAny<HttpRequestMessage>(), ItExpr.IsAny<CancellationToken>())
+                .Returns(Task.FromResult(new HttpResponseMessage(HttpStatusCode.NotFound)
+                {
+                    Content = new StringContent("the item was not found", Encoding.UTF8, "application/json")
+                }));
+
+            var proxy = new HttpServiceProxyStub(new HttpClient(handler.Object));
+
+            await proxy.UpdateAsync(new Customer());
+            proxy.OnFormatServerErrorWasInvoked.ShouldBe(true);
+        }
+
+        [TestMethod]
+        [ExpectedException(typeof(ConcurrencyException))]
+        public async Task Update_throws_ConcurrencyException_when_server_status_code_is_CONFLICT_Async()
+        {
+            var handler = new Mock<HttpMessageHandler>();
+
+            handler.Protected()
+                .Setup<Task<HttpResponseMessage>>("SendAsync", ItExpr.IsAny<HttpRequestMessage>(), ItExpr.IsAny<CancellationToken>())
+                .Returns(Task.FromResult(new HttpResponseMessage(HttpStatusCode.Conflict)
+                {
+                    Content = new StringContent("the item was not found", Encoding.UTF8, "application/json")
+                }));
+
+            var proxy = new HttpServiceProxyStub(new HttpClient(handler.Object));
+
+            await proxy.UpdateAsync(new Customer());
+            proxy.OnFormatServerErrorWasInvoked.ShouldBe(true);
+        }
+
+        [TestMethod]
+        [ExpectedException(typeof(ServiceException))]
+        public async Task Update_throws_ServiceException_when_server_status_code_is_BAD_REQUEST_Async()
+        {
+            var handler = new Mock<HttpMessageHandler>();
+
+            handler.Protected()
+                .Setup<Task<HttpResponseMessage>>("SendAsync", ItExpr.IsAny<HttpRequestMessage>(), ItExpr.IsAny<CancellationToken>())
+                .Returns(Task.FromResult(new HttpResponseMessage(HttpStatusCode.BadRequest)
+                {
+                    Content = new StringContent("some known error occurred and was handled", Encoding.UTF8, "application/json")
+                }));
+
+            var proxy = new HttpServiceProxyStub(new HttpClient(handler.Object));
+
+            await proxy.UpdateAsync(new Customer());
+            proxy.OnFormatServerErrorWasInvoked.ShouldBe(true);
+        }
+
+        [TestMethod]
+        [ExpectedException(typeof(UnsupportedMediaTypeException))]
+        public async Task Update_throws_UnsupportedMediaTypeException_when_bad_formatter_is_supplied_async()
+        {
+            var handler = new Mock<HttpMessageHandler>();
+
+            handler.Protected()
+                .Setup<Task<HttpResponseMessage>>("SendAsync", ItExpr.IsAny<HttpRequestMessage>(), ItExpr.IsAny<CancellationToken>())
+                .Returns(Task.FromResult(new HttpResponseMessage(HttpStatusCode.OK) { Content = new StringContent("{\"ID\": 1}", Encoding.UTF8, "application/json") }));
+
+            var proxy = new HttpServiceProxyStub(new HttpClient(handler.Object)) { Formatter = new XmlMediaTypeFormatter() };
+
+            await proxy.UpdateAsync(new Customer());
+            proxy.OnFormatServerErrorWasInvoked.ShouldBe(true);
+        }
+
+        [TestMethod]
+        public async Task Update_returns_expected_item_async()
+        {
+            var handler = new Mock<HttpMessageHandler>();
+
+            handler.Protected()
+                .Setup<Task<HttpResponseMessage>>("SendAsync", ItExpr.IsAny<HttpRequestMessage>(), ItExpr.IsAny<CancellationToken>())
+                .Returns(Task.FromResult(new HttpResponseMessage(HttpStatusCode.OK) { Content = new StringContent("{\"ID\": 1}", Encoding.UTF8, "application/json") }));
+
+            var proxy = new HttpServiceProxyStub(new HttpClient(handler.Object));
+            var customer = await proxy.UpdateAsync(new Customer());
+
+            customer.ID.ShouldBe(1);
+        }
+
         #endregion
 
         #region Delete
