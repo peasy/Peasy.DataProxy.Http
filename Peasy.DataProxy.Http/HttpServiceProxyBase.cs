@@ -9,14 +9,23 @@ using Peasy;
 using System;
 using System.Net;
 
-namespace Orders.com.DAL.Http
+namespace Peasy.DataProxy.Http
 {
     public abstract class HttpServiceProxyBase<T, TKey> : IServiceDataProxy<T, TKey> where T : IDomainObject<TKey>
     {
+        private readonly ISynchronousInvocationStrategy _synchronousInvocationStrategy = new WaitForResultStrategy();
+
         protected abstract string RequestUri { get; }
 
+        public HttpServiceProxyBase() { } 
+
+        public HttpServiceProxyBase(ISynchronousInvocationStrategy syncInvocationStrategy)
+        {
+            _synchronousInvocationStrategy = syncInvocationStrategy;
+        }
+        
         /// <summary>
-        /// Invokes a synchronous HTTP GET against the configured <see cref="RequestUri"/> 
+        /// Invokes an HTTP GET against the configured <see cref="RequestUri"/> 
         /// </summary>
         /// <exception cref="ServiceException">Thrown when server returns 400 - Bad Request</exception>
         /// <exception cref="NotImplementedException">Thrown when server returns 501 - Not Implemented</exception>
@@ -26,7 +35,7 @@ namespace Orders.com.DAL.Http
         }
 
         /// <summary>
-        /// Invokes a synchronous HTTP GET against the configured <see cref="RequestUri" and supplied id/> 
+        /// Invokes an HTTP GET against the configured <see cref="RequestUri" and supplied id/> 
         /// </summary>
         /// <exception cref="DomainObjectNotFoundException">Thrown when server returns 404 - Not Found</exception>
         /// <exception cref="ServiceException">Thrown when server returns 400 - Bad Request</exception>
@@ -38,7 +47,7 @@ namespace Orders.com.DAL.Http
         }
 
         /// <summary>
-        /// Invokes a synchronous HTTP POST against the configured <see cref="RequestUri"/> 
+        /// Invokes an HTTP POST against the configured <see cref="RequestUri"/> 
         /// </summary>
         /// <exception cref="ServiceException">Thrown when server returns 400 - Bad Request</exception>
         /// <exception cref="NotImplementedException">Thrown when server returns 501 - Not Implemented</exception>
@@ -48,7 +57,7 @@ namespace Orders.com.DAL.Http
         }
 
         /// <summary>
-        /// Invokes a synchronous HTTP PUT against the configured <see cref="RequestUri"/> 
+        /// Invokes an HTTP PUT against the configured <see cref="RequestUri"/> 
         /// </summary>
         /// <exception cref="DomainObjectNotFoundException">Thrown when server returns 404 - Not Found</exception>
         /// <exception cref="ConcurrencyException">Thrown when server returns 409 - Conflict</exception> 
@@ -61,7 +70,7 @@ namespace Orders.com.DAL.Http
         }
 
         /// <summary>
-        /// Invokes a synchronous HTTP DELETE against the configured <see cref="RequestUri"/> 
+        /// Invokes an HTTP DELETE against the configured <see cref="RequestUri"/> 
         /// </summary>
         /// <exception cref="DomainObjectNotFoundException">Thrown when server returns 404 - Not Found</exception>
         /// <exception cref="ServiceException">Thrown when server returns 400 - Bad Request</exception>
@@ -73,7 +82,7 @@ namespace Orders.com.DAL.Http
         }
 
         /// <summary>
-        /// Invokes an asynchronous HTTP GET against the configured <see cref="RequestUri"/> 
+        /// Invokes an HTTP GET against the configured <see cref="RequestUri"/> 
         /// </summary>
         /// <exception cref="ServiceException">Thrown when server returns 400 - Bad Request</exception>
         /// <exception cref="NotImplementedException">Thrown when server returns 501 - Not Implemented</exception>
@@ -83,7 +92,7 @@ namespace Orders.com.DAL.Http
         }
 
         /// <summary>
-        /// Invokes an asynchronous HTTP GET against the configured <see cref="RequestUri" and supplied id/> 
+        /// Invokes an HTTP GET against the configured <see cref="RequestUri" and supplied id/> 
         /// </summary>
         /// <exception cref="DomainObjectNotFoundException">Thrown when server returns 404 - Not Found</exception>
         /// <exception cref="ServiceException">Thrown when server returns 400 - Bad Request</exception>
@@ -95,7 +104,7 @@ namespace Orders.com.DAL.Http
         }
 
         /// <summary>
-        /// Invokes an asynchronous HTTP POST against the configured <see cref="RequestUri"/> 
+        /// Invokes an HTTP POST against the configured <see cref="RequestUri"/> 
         /// </summary>
         /// <exception cref="ServiceException">Thrown when server returns 400 - Bad Request</exception>
         /// <exception cref="NotImplementedException">Thrown when server returns 501 - Not Implemented</exception>
@@ -105,7 +114,7 @@ namespace Orders.com.DAL.Http
         }
 
         /// <summary>
-        /// Invokes an asynchronous HTTP PUT against the configured <see cref="RequestUri"/> 
+        /// Invokes an HTTP PUT against the configured <see cref="RequestUri"/> 
         /// </summary>
         /// <exception cref="DomainObjectNotFoundException">Thrown when server returns 404 - Not Found</exception>
         /// <exception cref="ConcurrencyException">Thrown when server returns 409 - Conflict</exception> 
@@ -118,7 +127,7 @@ namespace Orders.com.DAL.Http
         }
 
         /// <summary>
-        /// Invokes an asynchronous HTTP DELETE against the configured <see cref="RequestUri"/> 
+        /// Invokes an HTTP DELETE against the configured <see cref="RequestUri"/> 
         /// </summary>
         /// <exception cref="DomainObjectNotFoundException">Thrown when server returns 404 - Not Found</exception>
         /// <exception cref="ServiceException">Thrown when server returns 400 - Bad Request</exception>
@@ -137,14 +146,7 @@ namespace Orders.com.DAL.Http
         /// <returns></returns>
         protected virtual TOut GET<TOut>(string requestUri)
         {
-            try
-            {
-                return GETAsync<TOut>(requestUri).Result;
-            }
-            catch (AggregateException ex)
-            {
-                throw ex.GetBaseException();
-            }
+            return _synchronousInvocationStrategy.Invoke(() => GETAsync<TOut>(requestUri));
         }
 
         /// <summary>
@@ -159,7 +161,7 @@ namespace Orders.com.DAL.Http
         {
             using (var client = BuildConfiguredClient())
             {
-                var response = await client.GetAsync(requestUri);
+                var response = await client.GetAsync(requestUri).ConfigureAwait(false);
                 var entity = await ParseResponseAsync<TOut>(response);
                 return entity;
             }
@@ -175,14 +177,7 @@ namespace Orders.com.DAL.Http
         /// <returns></returns>
         protected virtual TOut POST<TIn, TOut>(TIn args, string requestUri)
         {
-            try
-            {
-                return POSTAsync<TIn, TOut>(args, requestUri).Result;
-            }
-            catch (AggregateException ex)
-            {
-                throw ex.GetBaseException();
-            }
+            return _synchronousInvocationStrategy.Invoke(() => POSTAsync<TIn, TOut>(args, requestUri));
         }
 
         /// <summary>
@@ -197,7 +192,7 @@ namespace Orders.com.DAL.Http
         {
             using (var client = BuildConfiguredClient())
             {
-                var response = await client.PostAsync<TIn>(requestUri, args, GetMediaTypeFormatter());
+                var response = await client.PostAsync<TIn>(requestUri, args, GetMediaTypeFormatter()).ConfigureAwait(false);
                 var returnValue = await ParseResponseAsync<TOut>(response);
                 return returnValue;
             }
@@ -213,14 +208,7 @@ namespace Orders.com.DAL.Http
         /// <returns></returns>
         protected virtual TOut PUT<TIn, TOut>(TIn args, string requestUri)
         {
-            try
-            {
-                return PUTAsync<TIn, TOut>(args, requestUri).Result;
-            }
-            catch (AggregateException ex)
-            {
-                throw ex.GetBaseException();
-            }
+            return _synchronousInvocationStrategy.Invoke(() => PUTAsync<TIn, TOut>(args, requestUri));
         }
 
         /// <summary>
@@ -235,7 +223,7 @@ namespace Orders.com.DAL.Http
         {
             using (var client = BuildConfiguredClient())
             {
-                var response = await client.PutAsync<TIn>(requestUri, args, GetMediaTypeFormatter());
+                var response = await client.PutAsync<TIn>(requestUri, args, GetMediaTypeFormatter()).ConfigureAwait(false);
                 var returnValue = await ParseResponseAsync<TOut>(response);
                 return returnValue;
             }
@@ -248,14 +236,7 @@ namespace Orders.com.DAL.Http
         /// <returns></returns>
         protected virtual void DELETE(string requestUri)
         {
-            try
-            {
-                DELETEAsync(requestUri).Wait();
-            }
-            catch (AggregateException ex)
-            {
-                throw ex.GetBaseException();
-            }
+            _synchronousInvocationStrategy.Invoke(() => DELETEAsync(requestUri)); 
         }
 
         /// <summary>
@@ -267,7 +248,7 @@ namespace Orders.com.DAL.Http
         {
             using (var client = BuildConfiguredClient())
             {
-                var response = await client.DeleteAsync(requestUri);
+                var response = await client.DeleteAsync(requestUri).ConfigureAwait(false);
                 EnsureSuccessStatusCode(response);
             }
         }

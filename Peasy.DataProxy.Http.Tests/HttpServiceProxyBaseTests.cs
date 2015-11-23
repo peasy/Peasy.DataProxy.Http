@@ -1,7 +1,6 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using Moq.Protected;
-using Orders.com.DAL.Http;
 using Peasy.Core;
 using Peasy.Exception;
 using Shouldly;
