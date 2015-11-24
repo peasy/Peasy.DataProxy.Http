@@ -70,3 +70,5 @@ In this example, we simply override ```GetMediaTypeFormatter``` and return the [
 ### Peasy specific exceptions
 
 ### Synchronous execution
+
+### Parsing the response message
