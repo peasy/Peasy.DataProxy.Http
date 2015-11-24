@@ -79,9 +79,6 @@ Your HTTP data proxy implementations serve as a data layer abstraction to your p
 
 **[System.NotImplementedException](https://msdn.microsoft.com/en-us/library/system.notimplementedexception(v=vs.110).aspx)** - This exception is thrown when an HTTP endpoint returns a _501 Not Implemented_ error response.  This result is typically returned when a requested resource provides no implementation for an HTTP request.
 
-
-### Synchronous execution
-
 ### Parsing an error response message
 
 Errors returned from HTTP endpoints can be formatted in many different ways.  In order to parse the errors into a format that is suitable for your needs, you can simply override the [```OnFormatServerError```](https://github.com/peasy/Peasy.DataProxy.Http/blob/master/Peasy.DataProxy.Http/HttpServiceProxyBase.cs#L308), as displayed below:
@@ -106,3 +103,13 @@ public class PersonRepository : HttpServiceProxyBase<Person, int>
     }
 }
 ```
+
+### Synchronous execution
+
+Under the hood, [HttpServiceProxyBase](https://github.com/peasy/Peasy.DataProxy.Http/blob/master/Peasy.DataProxy.Http/HttpServiceProxyBase.cs) uses [HttpClient](https://msdn.microsoft.com/en-us/library/system.net.http.httpclient(v=vs.118).aspx) for HTTP communications.  HttpClient only exposes asynchronous functionality, however, [IDataProxy](https://github.com/peasy/Peasy.NET/wiki/Data-Proxy) exposes both synchronous and asynchronous operations.  As a result, the synchronous methods of the HttpServiceProxyBase synchronously invoke the asychronous methods of HttpClient.
+
+This situation can cause issues when within different contexts, most notably, within WPF and ASP.NET applications.  This topic can be best explained [here](http://blogs.msdn.com/b/pfxteam/archive/2012/04/13/10293638.aspx).  To remedy any situations where invoking asynchronous methods synchronously cause issues, [ISynchronousInvocationStrategy](https://github.com/peasy/Peasy.DataProxy.Http/blob/master/Peasy.DataProxy.Http/ISynchronousInvocationStrategy.cs) was developed to allow you to inject alternative ways to synchronously invoke the asynchronous methods of HttpClient.
+
+Currently there are 2 concrete implementations of ISynchronousInvocationStrategy, which are [RunWithinTaskStrategy](https://github.com/peasy/Peasy.DataProxy.Http/blob/master/Peasy.DataProxy.Http/RunWithinTaskStrategy.cs) and [WaitForResultStrategy](https://github.com/peasy/Peasy.DataProxy.Http/blob/master/Peasy.DataProxy.Http/WaitForResultStrategy.cs).  
+
+By default, HttpServiceProxyBase is configured to use WaitForResultStrategy.  In the event that this strategy does not suit your needs, you can inject the RunWithinTaskStrategy or your own custom developed strategy.
