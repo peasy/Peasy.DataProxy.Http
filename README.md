@@ -27,7 +27,7 @@ public class PersonRepository : HttpServiceProxyBase<Person, int>
     {
         get
         {
-            return "http://localhost:1234/api/customers";
+            return "http://localhost:1234/api/people";
         }
     }
 }
