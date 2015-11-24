@@ -71,13 +71,13 @@ In this example, we simply override ```GetMediaTypeFormatter``` and return the [
 
 Your HTTP data proxy implementations serve as a data layer abstraction to your peasy [service classes](https://github.com/peasy/Peasy.NET/wiki/ServiceBase).  As such, consumers of your data proxies should know how to handle certain exceptions that can happen when being consumed.  HttpServiceProxyBase handles a few specific HTTP error response codes and throws specific peasy exceptions so that you can handle accordingly.
 
-**[Peasy.Core.ServiceException](https://github.com/peasy/Peasy.NET/blob/master/Peasy.Core/ServiceException.cs)** - This exception is thrown when an HTTP endpoint returns a _400 Bad Request_ error response.  This response is typically returned when a business or validation rule is broken during an HTTP request.  The [command](https://github.com/peasy/Peasy.NET/wiki/Command) class catches exceptions of this type, and adds errors to the [ExecutionResult](https://github.com/peasy/Peasy.NET/wiki/ExecutionResult).```Errors``` list on your behalf.
+**[ServiceException](https://github.com/peasy/Peasy.NET/blob/master/Peasy.Core/ServiceException.cs)** - This exception is thrown when an HTTP endpoint returns a _400 Bad Request_ error response.  This response is typically returned when a business or validation rule is broken during an HTTP request.  The [command](https://github.com/peasy/Peasy.NET/wiki/Command) class catches exceptions of this type, and adds errors to the [ExecutionResult](https://github.com/peasy/Peasy.NET/wiki/ExecutionResult).```Errors``` list on your behalf.
 
-**[Peasy.DomainObjectNotFoundExeption](https://github.com/peasy/Peasy.NET/blob/master/Peasy/Exception/DomainObjectNotFoundException.cs)**- This exception is thrown when an HTTP endpoint returns a _404 Not Found_ error response.  This response is typically returned when an item cannot be found during an HTTP request.
+**[DomainObjectNotFoundExeption](https://github.com/peasy/Peasy.NET/blob/master/Peasy/Exception/DomainObjectNotFoundException.cs)**- This exception is thrown when an HTTP endpoint returns a _404 Not Found_ error response.  This response is typically returned when an item cannot be found during an HTTP request.
 
-**[Peasy.ConcurrencyException](https://github.com/peasy/Peasy.NET/blob/master/Peasy/Exception/ConcurrencyException.cs)** - This exception is thrown when an HTTP endpoint returns a _409 Conflict_ error response.  This result is typically returned when a concurrency issue occurs during an HTTP request.
+**[ConcurrencyException](https://github.com/peasy/Peasy.NET/blob/master/Peasy/Exception/ConcurrencyException.cs)** - This exception is thrown when an HTTP endpoint returns a _409 Conflict_ error response.  This result is typically returned when a concurrency issue occurs during an HTTP request.
 
-**[System.NotImplementedException](https://msdn.microsoft.com/en-us/library/system.notimplementedexception(v=vs.110).aspx)** - This exception is thrown when an HTTP endpoint returns a _501 Not Implemented_ error response.  This result is typically returned when a requested resource provides no implementation for an HTTP request.
+**[NotImplementedException](https://msdn.microsoft.com/en-us/library/system.notimplementedexception(v=vs.110).aspx)** - This exception is thrown when an HTTP endpoint returns a _501 Not Implemented_ error response.  This result is typically returned when a requested resource provides no implementation for an HTTP request.
 
 ### Parsing an error response message
 
