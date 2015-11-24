@@ -37,7 +37,7 @@ In this example, we create an HTTP person repository.  The first thing to note i
 
 As part of our contractual obligation, we override ```RequestUri``` to provide the endpoint in which the data proxy will communicate with.  In this example, we hard coded the uri for brevity.  In practice, you will most likely return a value from a configuration file or similar.
 
-By simply inheriting from HttpServiceProxyBase and overriding RequestUri, you have a full-blown HTTP data proxy that communicates with an HTTP endpoint, handling the [serialization/deserialization]() of your types, and throws [peasy specific exceptions]() based on HTTP error response codes.
+By simply inheriting from HttpServiceProxyBase and overriding RequestUri, you have a full-blown HTTP data proxy that communicates with an HTTP endpoint, handling the [serialization/deserialization]() of your types, and throwing [peasy specific exceptions]() based on HTTP error response codes.
 
 ### Serialization/Deserialization
 
