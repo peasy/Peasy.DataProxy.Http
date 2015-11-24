@@ -80,7 +80,29 @@ Your HTTP data proxy implementations serve as a data layer abstraction to your p
 **[System.NotImplementedException](https://msdn.microsoft.com/en-us/library/system.notimplementedexception(v=vs.110).aspx)** - This exception is thrown when an HTTP endpoint returns a _501 Not Implemented_ error response.  This result is typically returned when a requested resource provides no implementation for an HTTP request.
 
 
-
 ### Synchronous execution
 
-### Parsing the response message
+### Parsing an error response message
+
+Errors returned from HTTP endpoints can be formatted in many different ways.  In order to parse the errors into a format that is suitable for your needs, you can simply override the [```OnFormatServerError```](https://github.com/peasy/Peasy.DataProxy.Http/blob/master/Peasy.DataProxy.Http/HttpServiceProxyBase.cs#L308), as displayed below:
+
+```c#
+public class PersonRepository : HttpServiceProxyBase<Person, int>
+{
+    protected override string RequestUri
+    {
+        get
+        {
+            return "http://localhost:1234/api/people";
+        }
+    }
+    
+    protected override string OnFormatServerError(string message)
+    {
+        var msg = message.Split(new[] { ':' })[1];
+        Regex rgx = new Regex("[\\{\\}\"]"); // get rid of the quotes and braces
+        msg = rgx.Replace(msg, "").Trim();
+        return msg;
+    }
+}
+```
