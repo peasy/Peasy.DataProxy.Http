@@ -1,69 +1,72 @@
 ![peasy](https://www.dropbox.com/s/2yajr2x9yevvzbm/peasy3.png?dl=0&raw=1)
 
-### Peasy.DataProxy.InMemory
+### Peasy.DataProxy.Http
 
-Peasy.DataProxy.InMemory provides the [InMemoryDataProxyBase](https://github.com/ahanusa/Peasy.DataProxy.InMemory/blob/master/Peasy.DataProxy.InMemory/InMemoryDataProxyBase.cs) class.  InMemoryDataProxyBase is an abstract class that implements [IDataProxy](https://github.com/ahanusa/Peasy.NET/wiki/Data-Proxy), and can be used to very quickly and easily provide an in-memory implementation of your data layer.
-
-Creating an in-memory implementation of your data layer can help developing state-based unit tests as well as serving as a fake repository for rapid development of your [service classes](https://github.com/ahanusa/Peasy.NET/wiki/ServiceBase).  InMemoryDataProxy was designed to be simple to use and thread-safe.
+Peasy.DataProxy.Http provides the [HttpServiceProxyBase](https://github.com/peasy/Peasy.DataProxy.Http/blob/master/Peasy.DataProxy.Http/HttpServiceProxyBase.cs) class.  HttpServiceProxyBase is an abstract class that implements [IDataProxy](https://github.com/ahanusa/Peasy.NET/wiki/Data-Proxy), and can be used to very quickly and easily provide a data proxy that communicates with HTTP services via the GET, POST, PUT, and DELETE verbs.
 
 ###Where can I get it?
 
-First, install NuGet. Then create a project for your in-memory class implementations to live.  Finally, install Peasy.DataProxy.InMemory from the package manager console:
+First, install NuGet. Then create a project for your HTTP class implementations to live.  Finally, install Peasy.DataProxy.Http from the package manager console:
 
-``` PM> Install-Package Peasy.DataProxy.InMemory ```
+``` PM> Install-Package Peasy.DataProxy.Http ```
 
-You can also download and add the Peasy.DataProxy.InMemory project to your solution and set references where applicable
+You can also download and add the Peasy.DataProxy.Http project to your solution and set references where applicable
 
-### Creating a concrete in-memory data proxy
+### Creating a concrete HTTP data proxy
 
-To create an in-memory repository, you must inherit from [InMemoryDataProxyBase](https://github.com/ahanusa/Peasy.DataProxy.InMemory/blob/master/Peasy.DataProxy.InMemory/InMemoryDataProxyBase.cs).  There is one contractual obligation to fullfill.
+To create an HTTP repository, you must inherit from [HttpServiceProxyBase](https://github.com/peasy/Peasy.DataProxy.Http/blob/master/Peasy.DataProxy.Http/HttpServiceProxyBase.cs).  There is one contractual obligation to fullfill.
 
-1.) Override [GetNextID](https://github.com/ahanusa/Peasy.DataProxy.InMemory/blob/master/Peasy.DataProxy.InMemory/InMemoryDataProxyBase.cs#L45) - this method is invoked by [InMemoryDataProxyBase.```Insert```](https://github.com/ahanusa/Peasy.DataProxy.InMemory/blob/master/Peasy.DataProxy.InMemory/InMemoryDataProxyBase.cs#L65) and [InMemoryDataProxyBase.```InsertAsync```](https://github.com/ahanusa/Peasy.DataProxy.InMemory/blob/master/Peasy.DataProxy.InMemory/InMemoryDataProxyBase.cs#L113) and is used to obtain an ID to assign to a newly created object.  You can use any algorithm you want to calculate the next sequential ID that makes sense to you given your specified data type.
+1.) Override [RequestUri](https://github.com/peasy/Peasy.DataProxy.Http/blob/master/Peasy.DataProxy.Http/HttpServiceProxyBase.cs#L18) - this property represents the endpoint your proxy implementation will communicate with
 
 Here is a sample implementation
 
 ```c#
-public class PersonRepository : InMemoryDataProxyBase<Person, int>
+public class PersonRepository : HttpServiceProxyBase<Person, int>
 {
-    protected override int GetNextID()
+    protected override string RequestUri
     {
-        if (Data.Values.Any())
-            return Data.Values.Max(c => c.ID) + 1;
-
-        return 1;
+        get
+        {
+            return "http://localhost:1234/api/customers";
+        }
     }
 }
 ```
 
-In this example, we create an in-memory person repository.  The first thing to note is that we supplied ```Person``` and ```int``` as our generic types.  The Person class is a [DTO](https://github.com/ahanusa/Peasy.NET/wiki/Data-Transfer-Object-(DTO)) that must implement [```IDomainObject<T>```](https://github.com/ahanusa/Peasy.NET/blob/master/Peasy.Core/IDomainObject.cs).  The ```int``` specifies the key type that will be used for all of our arguments to the [IDataProxy](https://github.com/ahanusa/Peasy.NET/wiki/Data-Proxy) methods.
+In this example, we create an HTTP person repository.  The first thing to note is that we supplied ```Person``` and ```int``` as our generic types.  The Person class is a [DTO](https://github.com/peasy/Peasy.NET/wiki/Data-Transfer-Object-(DTO)) that must implement [```IDomainObject<T>```](https://github.com/peasy/Peasy.NET/blob/master/Peasy.Core/IDomainObject.cs).  The ```int``` specifies the key type that will be used for all of our arguments to the [IDataProxy](https://github.com/peasy/Peasy.NET/wiki/Data-Proxy) methods.
 
-As part of our contractual obligation, we override ```GetNextID``` to provide logic that is responsible for serving up a new ID when invoked by InMemoryDataProxyBase.```Insert``` or InMemoryDataProxyBase.```InsertAsync```.  It should be noted that in the event that Insert or InsertAsync receives a duplicate ID, an exception of type [System.ArgumentException](https://msdn.microsoft.com/en-us/library/system.argumentexception(v=vs.110).aspx) will be thrown.
+As part of our contractual obligation, we override ```RequestUri``` to provide the endpoint in which the data proxy will communicate with.  In this example, we hard coded the uri for brevity.  In practice, you will most likely return a value from a configuration file or similar.
 
-By simply inheriting from InMemoryDataProxyBase and overriding GetNextID, you have a full-blown thread-safe in-memory data proxy that can be consumed by your unit tests and service classes.
+By simply inheriting from HttpServiceProxyBase and overriding RequestUri, you have a full-blown HTTP data proxy that communicates with an HTTP endpoint, handling the [serialization/deserialization]() of your types, and throws [peasy specific exceptions]() based on HTTP error response codes.
 
-### Providing seed data
+### Serialization/Deserialization
 
-Many times you'll want an instantiation of an in-memory data proxy to contain default data.  Providing default data is often times referred to as _seeding_ and can be accomplished by overriding [```SeedDataProxy```](https://github.com/ahanusa/Peasy.DataProxy.InMemory/blob/master/Peasy.DataProxy.InMemory/InMemoryDataProxyBase.cs#L40).
+By default, HttpServiceProxyBase was designed to communicate with HTTP endpoints by sending and consuming JSON payloads.  Your strongly typed [DTOs]() will be serialized as JSON before being sent to HTTP endpoints.  In addition, the returned JSON will be deserialized into a strongly typed DTO and returned from your HTTP data proxy methods.
+
+There might be cases when your HTTP data proxy needs to communicate with a service using a different media type, such as XML or a custom defined media type.  In this case, you can specify your own [MediaTypeFormatter]() by overriding the ```GetMediaTypeFormatter``` method.
 
 Here is an example
 
 ```c#
-public class PersonRepository : InMemoryDataProxyBase<Person, int>
+public class PersonRepository : HttpServiceProxyBase<Person, int>
 {
-    protected override IEnumerable<Person> SeedDataProxy()
+    protected override string RequestUri
     {
-        yield return new Person { ID = 1, Name = "Jimi Hendrix" };
-        yield return new Person { ID = 2, Name = "Django Reinhardt" };
+        get
+        {
+            return "http://localhost:1234/api/customers";
+        }
     }
-
-    protected override int GetNextID()
+    
+    protected override MediaTypeFormatter GetMediaTypeFormatter()
     {
-        if (Data.Values.Any())
-            return Data.Values.Max(c => c.ID) + 1;
-
-        return 1;
+        return new XmlMediaTypeFormatter();
     }
 }
 ```
 
-In this example, we simply override ```SeedDataProxy``` and return our default data.
+In this example, we simply override ```GetMediaTypeFormatter``` and return the [XmlMediaTypeFormatter]().  Doing this will serialize and deserialize our types to and from XML.
+
+### Peasy specific exceptions
+
+### Synchronous execution
