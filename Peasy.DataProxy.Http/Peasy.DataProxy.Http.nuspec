@@ -1,0 +1,19 @@
+<?xml version="1.0"?>
+<package >
+  <metadata>
+    <id>$id$</id>
+    <version>1.0.0.0</version>
+    <title>Peasy HTTP Data Proxy</title>
+    <authors>Aaron Hanusa</authors>
+    <owners>Aaron Hanusa</owners>
+    <licenseUrl>https://opensource.org/licenses/MIT</licenseUrl>
+    <projectUrl>https://github.com/ahanusa/Peasy.DataProxy.InMemory</projectUrl>
+    <iconUrl>https://www.dropbox.com/s/2yajr2x9yevvzbm/peasy3.png?raw=1</iconUrl>
+    <requireLicenseAcceptance>false</requireLicenseAcceptance>
+    <description>Provides base class functionality that serves as an HTTP data proxy implementation.  Use this to quickly create peasy data proxies that communicate with HTTP services via GET, POST, PUT, and DELETE calls.</description>
+    <releaseNotes></releaseNotes>
+    <copyright>Copyright 2015</copyright>
+    <tags>Middle Tier, Framework, Business Layer, Data Proxy, Repository, HTTP</tags>
+    <summary>An abstract implementation of Peasy.IDataProxy that communicates with HTTP services</summary>
+  </metadata>
+</package>
