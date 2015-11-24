@@ -37,13 +37,13 @@ In this example, we create an HTTP person repository.  The first thing to note i
 
 As part of our contractual obligation, we override ```RequestUri``` to provide the endpoint in which the data proxy will communicate with.  In this example, we hard coded the uri for brevity.  In practice, you will most likely return a value from a configuration file or similar.
 
-By simply inheriting from HttpServiceProxyBase and overriding RequestUri, you have a full-blown HTTP data proxy that communicates with an HTTP endpoint, handling the [serialization/deserialization]() of your types, and throwing [peasy specific exceptions]() based on HTTP error response codes.
+By simply inheriting from HttpServiceProxyBase and overriding RequestUri, you have a full-blown HTTP data proxy that communicates with an HTTP endpoint, handling the [serialization/deserialization](https://github.com/peasy/Peasy.DataProxy.Http#serializationdeserialization) of your types, and throwing [peasy specific exceptions](https://github.com/peasy/Peasy.DataProxy.Http#peasy-specific-exceptions) based on HTTP error response codes.
 
 ### Serialization/Deserialization
 
-By default, HttpServiceProxyBase was designed to communicate with HTTP endpoints by sending and consuming JSON payloads.  Your strongly typed [DTOs]() will be serialized as JSON before being sent to HTTP endpoints.  In addition, the returned JSON will be deserialized into a strongly typed DTO and returned from your HTTP data proxy methods.
+By default, HttpServiceProxyBase was designed to communicate with HTTP endpoints by sending and consuming JSON payloads.  Your strongly typed [DTOs](https://github.com/peasy/Peasy.NET/wiki/Data-Transfer-Object-(DTO)) will be serialized as JSON before being sent to HTTP endpoints.  In addition, returned JSON from HTTP endpoints will be deserialized into strongly typed DTOs and returned from your HTTP data proxy methods.
 
-There might be cases when your HTTP data proxy needs to communicate with a service using a different media type, such as XML or a custom defined media type.  In this case, you can specify your own [MediaTypeFormatter]() by overriding the ```GetMediaTypeFormatter``` method.
+There might be cases when your HTTP data proxy needs to communicate with a service using a different media type, such as XML or a custom defined media type.  In this case, you can specify your own [MediaTypeFormatter](https://msdn.microsoft.com/en-us/library/system.net.http.formatting.mediatypeformatter(v=vs.118).aspx) by overriding the ```GetMediaTypeFormatter``` method.
 
 Here is an example
 
@@ -54,7 +54,7 @@ public class PersonRepository : HttpServiceProxyBase<Person, int>
     {
         get
         {
-            return "http://localhost:1234/api/customers";
+            return "http://localhost:1234/api/people";
         }
     }
     
@@ -65,9 +65,21 @@ public class PersonRepository : HttpServiceProxyBase<Person, int>
 }
 ```
 
-In this example, we simply override ```GetMediaTypeFormatter``` and return the [XmlMediaTypeFormatter]().  Doing this will serialize and deserialize our types to and from XML.
+In this example, we simply override ```GetMediaTypeFormatter``` and return the [XmlMediaTypeFormatter](https://msdn.microsoft.com/en-us/library/system.net.http.formatting.xmlmediatypeformatter(v=vs.118).aspx).  Doing this will serialize and deserialize our types to and from XML.
 
 ### Peasy specific exceptions
+
+Your HTTP data proxy implementations serve as a data layer abstraction to your peasy [service classes](https://github.com/peasy/Peasy.NET/wiki/ServiceBase).  As such, consumers of your data proxies should know how to handle certain exceptions that can happen when being consumed.  HttpServiceProxyBase handles a few specific HTTP error response codes and throws specific peasy exceptions so that you can handle accordingly.
+
+**400 Bad Request** - This error is typically returned when a business or validation rule is broken during an HTTP request.  As a result, HttpServiceProxyBase throws a [Peasy.Core.ServiceException](https://github.com/peasy/Peasy.NET/blob/master/Peasy.Core/ServiceException.cs).  The [command](https://github.com/peasy/Peasy.NET/wiki/Command) class catches exceptions of this type, and adds errors to the [ExecutionResult](https://github.com/peasy/Peasy.NET/wiki/ExecutionResult).```Errors``` list on your behalf.
+
+**404 Not Found** - This error is typically returned when an item cannot be found during an HTTP request.  As a result, HttpServiceProxyBase throws a [Peasy.DomainObjectNotFoundExeption](https://github.com/peasy/Peasy.NET/blob/master/Peasy/Exception/DomainObjectNotFoundException.cs).
+
+**409 Conflict** - This error is typically returned when a concurrency issue occurs during an HTTP request.  As a result, HttpServiceProxyBase throws a [Peasy.ConcurrencyException](https://github.com/peasy/Peasy.NET/blob/master/Peasy/Exception/ConcurrencyException.cs).
+
+**501 Not Implemented** - This error is typically returned when a requested resource provides no implementation for an HTTP request.  As a result, HttpServiceProxyBase throws a [System.NotImplementedException](https://msdn.microsoft.com/en-us/library/system.notimplementedexception(v=vs.110).aspx).
+
+
 
 ### Synchronous execution
 
