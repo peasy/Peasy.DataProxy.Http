@@ -69,7 +69,7 @@ In this example, we simply override ```GetMediaTypeFormatter``` and return the [
 
 ### Peasy specific exceptions
 
-Your HTTP data proxy implementations serve as a data layer abstraction to your peasy [service classes](https://github.com/peasy/Peasy.NET/wiki/ServiceBase).  As such, consumers of your data proxies should know how to handle certain exceptions that can happen when being consumed.  HttpServiceProxyBase handles a few specific HTTP error response codes and throws specific peasy exceptions so that you can handle accordingly.
+Your HTTP data proxy implementations serve as a data layer abstraction to your peasy [service classes](https://github.com/peasy/Peasy.NET/wiki/ServiceBase).  As such, consumers of your data proxies should know how to handle certain exceptions that can happen when being consumed.  HttpServiceProxyBase handles a few specific HTTP error response codes and throws specific peasy exceptions so that you can handle them accordingly.
 
 **[ServiceException](https://github.com/peasy/Peasy.NET/blob/master/Peasy.Core/ServiceException.cs)** - This exception is thrown when an HTTP endpoint returns a _400 Bad Request_ error response.  This response is typically returned when a business or validation rule is broken during an HTTP request.  The [command](https://github.com/peasy/Peasy.NET/wiki/Command) class catches exceptions of this type, and adds errors to the [ExecutionResult](https://github.com/peasy/Peasy.NET/wiki/ExecutionResult).```Errors``` list on your behalf.
 
