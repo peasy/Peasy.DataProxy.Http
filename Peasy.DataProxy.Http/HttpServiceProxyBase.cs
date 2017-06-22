@@ -3,7 +3,6 @@ using System.Linq;
 using System.Net.Http;
 using System.Net.Http.Formatting;
 using System.Threading.Tasks;
-using Peasy.Core;
 using Peasy.Exception;
 using Peasy;
 using System;

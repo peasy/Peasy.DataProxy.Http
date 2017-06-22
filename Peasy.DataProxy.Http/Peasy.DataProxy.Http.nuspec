@@ -1,8 +1,8 @@
 <?xml version="1.0"?>
 <package >
   <metadata>
-    <id>$id$</id>
-    <version>1.0.0.0</version>
+    <id>Peasy.DataProxy.Http</id>
+    <version>2.0.0.0</version>
     <title>Peasy HTTP Data Proxy</title>
     <authors>Aaron Hanusa</authors>
     <owners>Aaron Hanusa</owners>
@@ -10,10 +10,19 @@
     <projectUrl>https://github.com/ahanusa/Peasy.DataProxy.InMemory</projectUrl>
     <iconUrl>https://www.dropbox.com/s/2yajr2x9yevvzbm/peasy3.png?raw=1</iconUrl>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
-    <description>Provides base class functionality that serves as an HTTP data proxy implementation.  Use this to quickly create peasy data proxies that communicate with HTTP services via GET, POST, PUT, and DELETE calls.</description>
+    <description>Provides base class functionality that serves as an HTTP data proxy implementation.  Use this to quickly create peasy data proxies that communicate with HTTP services via GET, POST, PUT, and DELETE invocations.</description>
     <releaseNotes></releaseNotes>
-    <copyright>Copyright 2015</copyright>
+    <copyright>Copyright 2017</copyright>
     <tags>Middle Tier, Framework, Business Layer, Data Proxy, Repository, HTTP</tags>
     <summary>An abstract implementation of Peasy.IDataProxy that communicates with HTTP services</summary>
+    <dependencies>
+      <dependency id="System.Net.Http" version="4.3.2" />
+      <dependency id="WinInsider.System.Net.Http.Formatting" version="1.0.5" />
+      <dependency id="Peasy" version="2.0.2" />
+    </dependencies>
   </metadata>
+  <files>
+    <file src="bin\Release\Peasy.DataProxy.Http.dll" target="lib\netstandard1.1\Peasy.DataProxy.Http.dll" />
+    <file src="bin\Release\Peasy.DataProxy.Http.xml" target="lib\netstandard1.1\Peasy.DataProxy.Http.xml" />
+  </files>
 </package>
