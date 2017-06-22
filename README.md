@@ -4,7 +4,7 @@
 
 Peasy.DataProxy.Http provides the [HttpServiceProxyBase](https://github.com/peasy/Peasy.DataProxy.Http/blob/master/Peasy.DataProxy.Http/HttpServiceProxyBase.cs) class.  HttpServiceProxyBase is an abstract class that implements [IDataProxy](https://github.com/ahanusa/Peasy.NET/wiki/Data-Proxy), and can be used to very quickly and easily provide a data proxy that communicates with HTTP services via the GET, POST, PUT, and DELETE verbs.
 
-###Where can I get it?
+### Where can I get it?
 
 First, install NuGet. Then create a project for your HTTP class implementations to live.  Finally, install Peasy.DataProxy.Http from the package manager console:
 
